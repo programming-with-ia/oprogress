@@ -1,0 +1,32 @@
+name: 🐞 Bug report
+description: Report a bug with OProgress packages or docs.
+labels: ['bug']
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: A detailed description of the issue that you are encountering, and how other people can reproduce it. This includes useful information such as the framework you use, how you use OProgress, etc.
+      placeholder: |
+        Reproduction steps...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Code example
+      description: Provide an example code snippet that has the problem.
+      placeholder: |
+        import '@oprogress/core/css';
+        import { OProgress } from '@oprogress/core';
+        ...
+  - type: input
+    id: provider
+    attributes:
+      label: Package used (or docs)
+      description: The package (e.g. `@oprogress/core`) that you are using, and its version (e.g. `1.0.0`).
+      placeholder: |
+        @oprogress/core v1.0.0
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: |
+        Any extra information that might help us investigate.

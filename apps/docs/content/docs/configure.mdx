@@ -1,0 +1,72 @@
+---
+title: Configuration
+description: How to configure OProgress
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+To configure the core settings of OProgress (like speed, trickle, easing, etc.), you need to create a custom instance using the `createProgressBar` function instead of using the default exported instance.
+
+## Usage
+
+Create a new file in your project (e.g., `lib/progress.ts`) and export your custom instance:
+
+```ts title="lib/progress.ts"
+import { createProgressBar } from '@oprogress/react';
+
+const customProgress = createProgressBar({
+  minimum: 0.08,
+  maximum: 1,
+  easing: 'linear',
+  speed: 200,
+  trickle: true,
+  trickleSpeed: 200,
+  trickleMax: 0.95,
+  direction: 'ltr',
+});
+
+// Export the customized properties
+export const progress = customProgress;
+export const useProgress = customProgress.useProgress;
+export const ProgressBar = customProgress.ProgressBar;
+```
+
+Then, you can use these custom exports throughout your application instead of importing from `@oprogress/react`.
+
+## Typing
+
+```ts
+function createProgressBar(options?: Partial<ProgressOptions>): ProgressBarInstance;
+```
+
+### ProgressOptions
+
+```ts
+interface ProgressOptions {
+  minimum?: number;
+  maximum?: number;
+  easing?: string;
+  speed?: number;
+  trickle?: boolean;
+  trickleSpeed?: number;
+  trickleMax?: number;
+  direction?: 'ltr' | 'rtl';
+}
+```
+
+## Options
+
+| Name     | Type                   | Default                            | Description                                   |
+|----------|------------------------|------------------------------------|-----------------------------------------------|
+| minimum  | number                 | 0.08                               | The minimum percentage value between 0 and 1. |
+| maximum  | number                 | 1                                  | The maximum percentage value between 0 and 1. |
+| easing   | string                 | 'linear'                           | The CSS easing of the progress bar.           |
+| speed    | number                 | 200                                | The CSS transition speed of the progress bar. |
+| trickle  | boolean                | true                               | If `true`, the progress bar will automatically trickle. |
+| trickleSpeed | number             | 200                                | The speed of the trickle interval in ms.      |
+| trickleMax | number               | 0.95                               | The maximum value the bar will reach while trickling, before `done()` completes it. |
+| direction | 'ltr' \| 'rtl'        | 'ltr'                              | The direction of the progress bar layout.     |
+
+<Callout type="info" title="Styling Options">
+  Note that styling options like `height`, `color`, and custom class names are not configured here. Instead, you pass them directly as props to the `<ProgressBar />` component.
+</Callout>

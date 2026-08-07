@@ -1,0 +1,133 @@
+---
+title: Scroll Progress Bar
+description: Use OProgress as a scroll progress bar at the bottom of the page
+---
+
+You can use OProgress as a **scroll progress bar** that shows how far the user has scrolled down the page. Render the bar at the bottom (`position="bottom"`) and update it manually from a `scroll` handler using `set()` and `done()`.
+
+## Live Example
+
+Check the interactive demo: [Scroll Progress Bar](/examples/scroll)
+
+## Why a custom instance?
+
+The default exported `progress` auto-trickles and is meant for navigation loading. A scroll bar should only reflect the actual scroll position, so create an instance with `trickle: false` and drive it yourself.
+
+## Reusable Component
+
+Copy the component below into `components/scroll-progress.tsx` in your project. It is self-contained: it creates its own progress instance, renders the bar, hooks up the `scroll` listener, and hides itself whenever the page cannot scroll.
+
+```tsx title="components/scroll-progress.tsx"
+'use client';
+
+import { useEffect } from 'react';
+import { createProgressBar } from '@oprogress/react';
+
+const scrollProgress = createProgressBar({
+  trickle: false,
+  speed: 100,
+  minimum: 0,
+});
+
+export function ScrollProgress() {
+  useEffect(() => {
+    const update = () => {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      const total = scrollHeight - clientHeight;
+      if (total <= 0) {
+        scrollProgress.stop();
+        return;
+      }
+      scrollProgress.set(Math.min(scrollTop / total, 0.999));
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  return (
+    <scrollProgress.ProgressBar position="bottom" height="4px" color="#29d" />
+  );
+}
+```
+
+### Add it to a layout
+
+Mount `<ScrollProgress />` once in a layout (e.g. `app/layout.tsx`) to show it on every page:
+
+```tsx title="app/layout.tsx"
+import { ScrollProgress } from '@/components/scroll-progress';
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <ScrollProgress />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+## Scrollable container
+
+If your page scrolls inside a container (e.g. a `div` with `overflow-y: auto`) instead of the window, read the scroll position from that element:
+
+```tsx title="components/scroll-progress.tsx"
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { createProgressBar } from '@oprogress/react';
+
+const scrollProgress = createProgressBar({
+  trickle: false,
+  speed: 100,
+  minimum: 0,
+});
+
+export function ScrollProgress({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const update = () => {
+      const el = ref.current;
+      if (!el) return;
+      const total = el.scrollHeight - el.clientHeight;
+      if (total <= 0) {
+        scrollProgress.stop();
+        return;
+      }
+      scrollProgress.set(Math.min(el.scrollTop / total, 0.999));
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className="h-screen overflow-y-auto">
+      <scrollProgress.ProgressBar position="bottom" height="4px" color="#29d" />
+      {children}
+    </div>
+  );
+}
+```
+
+## Tips
+
+- Use `trickle: false` so the bar never moves on its own.
+- Use `minimum: 0` so the bar is completely hidden at the top of the page.
+- Call `stop()` when the page is not scrollable (`total <= 0`) and cap the ratio just below 1 (`Math.min(scrollTop / total, 0.999)`) so the bar stays hidden on short pages and never flashes to a full 100% before `done()`.
+- Lower `speed` (e.g. `100`) to make the bar feel immediate.
+- Pass `height`, `color`, and other styling as props on `<ProgressBar />`.

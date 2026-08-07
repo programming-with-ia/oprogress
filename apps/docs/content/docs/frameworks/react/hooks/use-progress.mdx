@@ -1,0 +1,97 @@
+---
+title: useProgress
+description: How to use useProgress hook
+---
+
+`useProgress` is a React hook that gives you full control over the progress bar and access to its current state. 
+
+## Import
+
+```tsx
+import { useProgress } from '@oprogress/react';
+```
+
+## Signature
+
+The hook returns a tuple containing the current state and an object with control functions.
+
+```tsx
+const [state, reducers] = useProgress();
+```
+
+### State Properties
+
+The first item in the tuple is the `ProgressState` object:
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `status` | `number \| null` | The current progress percentage (0-100) or null if not started. |
+| `isStarted` | `boolean` | True if the progress bar is currently active. |
+| `isIndeterminate` | `boolean` | True if the progress bar is in an indeterminate state. |
+| `options` | `ProgressOptions` | The currently active configuration options. |
+
+### Reducer Functions
+
+The second item in the tuple provides control methods:
+
+| Function | Signature | Description |
+| :--- | :--- | :--- |
+| `start` | `(startPosition?: number, delay?: number) => void` | Starts the progress bar. |
+| `stop` | `() => void` | Cancels the progress bar and hides it without finishing. |
+| `done` | `(force?: boolean) => void` | Completes the progress bar and hides it. |
+| `pause` | `() => void` | Pauses the automatic progression. |
+| `resume` | `() => void` | Resumes the automatic progression. |
+| `set` | `(value: number) => void` | Sets the progress bar to a specific percentage (0-1). |
+| `inc` | `(amount?: number) => void` | Increments the progress bar. |
+| `dec` | `(amount?: number) => void` | Decrements the progress bar. |
+| `trickle` | `() => void` | Triggers a small increment (used internally for automatic progression). |
+| `startIndeterminate` | `() => void` | Sets the progress bar to an indeterminate state. |
+| `stopIndeterminate` | `() => void` | Stops the indeterminate state. |
+
+> [!TIP]
+> **Simultaneous States**
+> Normal and Indeterminate progress states run completely independently! If you start both simultaneously, the indeterminate bar will be shown visually as it has higher priority, but the normal progress will continue to trickle in the background. If you call `stopIndeterminate()`, the normal progress bar will seamlessly reappear at its current trickle progress. Calling `stop()` acts as a hard reset and aborts both.
+
+## Example
+
+```tsx title="src/App.tsx"
+import { useProgress, progress } from '@oprogress/react';
+
+function App() {
+  const [state, { start, stop }] = useProgress();
+
+  return (
+    <div className="App">
+      <p>Progress Active: {state.isStarted ? "Yes" : "No"}</p>
+      
+      {/* Control using the hook methods */}
+      <button onClick={start}>Start</button>
+      <button onClick={stop}>Stop</button>
+      
+      {/* Or control directly using the global progress instance! */}
+      <button onClick={() => progress.pause()}>Pause</button>
+      <button onClick={() => progress.resume()}>Resume</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Direct Usage (Without Hook)
+
+If you need to control the progress bar from outside a React component (e.g. in a global fetch interceptor, router events, or utility functions), you can import the `progress` instance directly from `@oprogress/react`. 
+
+This instance provides the exact same methods as the core engine.
+
+```tsx
+import { progress } from '@oprogress/react';
+
+// Start the progress bar
+progress.start();
+
+// Complete it later
+progress.done();
+```
+
+For more details on all available methods, see the [Methods Guide](/docs/start).

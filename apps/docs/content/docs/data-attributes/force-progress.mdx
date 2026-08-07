@@ -1,0 +1,33 @@
+---
+title: Force Progress
+description: Force the progress bar to start when clicking an element
+---
+
+You can force the progress bar to start when an element is clicked by adding the `data-force-progress="true"` attribute to the element.
+
+This is incredibly useful because you can attach it to **ANY element**, not just `<a>` anchors! If you attach this to a `<button>` that performs a server action or shallow routing, the progress bar will start immediately and will automatically complete (`done()`) when `observeUrl` detects that the URL has updated (even if it's just a query parameter change).
+
+`data-force-progress="true"` serves two purposes:
+
+1. **Force progress on non-anchor elements** — start the bar even when the clicked element is not an `<a>` link (e.g. a `<button>`).
+2. **Override shallow routing** — keep the bar running even when the navigation only updates the query string, which would normally be skipped when `shallowRouting` is enabled.
+
+> Note: `data-show-progress` was removed. Use `data-force-progress` instead — they behaved identically.
+
+## Usage
+
+```tsx
+<button onClick={() => doSomething()} data-force-progress="true">
+  Click me to load!
+</button>
+```
+
+## Shallow routing override
+
+```tsx
+// With shallowRouting enabled, a searchParam-only change is normally ignored.
+// Adding data-force-progress keeps the bar running until the URL updates.
+<a href="/dashboard?tab=1" data-force-progress="true">
+  Dashboard tab
+</a>
+```

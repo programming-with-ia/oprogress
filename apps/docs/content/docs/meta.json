@@ -1,0 +1,31 @@
+{
+  "title": "OProgress",
+  "root": true,
+  "pages": [
+    "---Guide---",
+    "index",
+    "installation",
+    "quick-start",
+    "migration",
+    "---Methods---",
+    "configure",
+    "start",
+    "done",
+    "set",
+    "inc",
+    "dec",
+    "trickle",
+    "pause",
+    "resume",
+    "---Style---",
+    "style",
+    "scroll-progress",
+    "---Frameworks---",
+    "frameworks/react",
+    "frameworks/nextjs",
+    "---More---",
+    "roadmap",
+    "---Advanced---",
+    "data-attributes"
+  ]
+}

@@ -1,0 +1,114 @@
+---
+title: Quick Start
+description: Install and get started with OProgress in your React application
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { SiNextdotjs, SiNpm, SiReact } from 'react-icons/si';
+import { HiDotsHorizontal } from 'react-icons/hi';
+import { FaGithub } from 'react-icons/fa6';
+import { Callout } from 'fumadocs-ui/components/callout';
+
+## Installation
+
+To install OProgress, run the following command:
+
+<Tabs groupId="packageManager" items={['npm', 'pnpm', 'yarn', 'bun']} persist>
+  <Tab value="npm">```bash npm install @oprogress/react ```</Tab>
+  <Tab value="pnpm">```bash pnpm add @oprogress/react ```</Tab>
+  <Tab value="yarn">```bash yarn add @oprogress/react ```</Tab>
+  <Tab value="bun">```bash bun add @oprogress/react ```</Tab>
+</Tabs>
+
+Now you are ready to use OProgress in your React application!
+
+## Import
+
+```tsx
+import { ProgressBar } from '@oprogress/react';
+```
+
+## Usage
+
+```tsx
+<ProgressBar />
+```
+
+## Example
+
+```tsx title="src/index.tsx"
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { ProgressBar } from '@oprogress/react';
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement,
+);
+root.render(
+  <React.StrictMode>
+    <ProgressBar height="3px" color="#29d" />
+    <App />
+  </React.StrictMode>,
+);
+```
+
+```tsx title="src/App.tsx"
+import { useProgress, progress } from '@oprogress/react';
+
+function App() {
+  const [state, { start, stop, pause, resume }] = useProgress();
+
+  return (
+    <div className="App">
+      <p>Progress Active: {state.isStarted ? "Yes" : "No"}</p>
+      
+      {/* Control using the hook methods */}
+      <button onClick={start}>Start</button>
+      <button onClick={stop}>Stop</button>
+      <button onClick={pause}>Pause</button>
+      <button onClick={resume}>Resume</button>
+      
+      {/* Or control directly using the progress instance! */}
+      <button onClick={() => progress.start()}>Start (Direct)</button>
+      <button onClick={() => progress.stop()}>Stop (Direct)</button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+## React Frameworks Integrations
+
+<Cards>
+  <Card title="Next.js" href="/docs/frameworks/nextjs/quick-start" icon={<SiNextdotjs />}>
+    Install OProgress in your Next.js application
+  </Card>
+
+  <Card title="Soon..." icon={<HiDotsHorizontal />}>
+    More integrations coming soon...
+  </Card>
+</Cards>
+
+## Links
+
+<Cards>
+  <Card
+    external
+    title="NPM"
+    href="https://www.npmjs.com/package/@oprogress/react"
+    icon={<SiNpm />}
+  >
+    Check the package on NPM
+  </Card>
+  <Card
+    external
+    title="GitHub"
+    href="https://github.com/programming-with-ia/oprogress/tree/main/packages/react"
+    icon={<FaGithub />}
+  >
+    Check the repository on GitHub
+  </Card>
+</Cards>

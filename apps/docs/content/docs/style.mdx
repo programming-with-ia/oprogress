@@ -1,0 +1,82 @@
+---
+title: CSS
+description: Progress bar CSS
+---
+
+## Import 
+
+```js
+import '@oprogress/core/css';
+```
+
+> The React package also ships the same stylesheet: `import '@oprogress/react/css'`.
+
+## Variables
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `--oprogress-color` | Progress bar color | `#29d` |
+| `--oprogress-height` | Progress bar height | `3px` |
+| `--oprogress-z-index` | Progress bar z-index | `9999` |
+| `--oprogress-easing` | Transition easing | `linear` |
+| `--oprogress-speed` | Transition speed | `200ms` |
+| `--oprogress-indeterminate-duration` | Indeterminate animation duration | `1.5s` |
+
+## CSS File
+
+```css
+:root {
+  --oprogress-color: #29d;
+  --oprogress-height: 3px;
+  --oprogress-z-index: 9999;
+  --oprogress-easing: linear;
+  --oprogress-speed: 200ms;
+  --oprogress-indeterminate-duration: 1.5s;
+}
+
+.oprogress-container {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--oprogress-height);
+  z-index: var(--oprogress-z-index);
+  overflow: hidden;
+}
+
+.oprogress-container.oprogress-indeterminate {
+  position: fixed;
+}
+
+.oprogress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--oprogress-speed) var(--oprogress-easing);
+  will-change: transform;
+}
+
+.oprogress-bar-indeterminate {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  animation: oprogress-indeterminate var(--oprogress-indeterminate-duration) linear infinite;
+}
+
+@keyframes oprogress-indeterminate {
+  0% {
+    transform: translateX(-20%) scaleX(0.5);
+  }
+  50% {
+    transform: translateX(40%) scaleX(0.8);
+  }
+  100% {
+    transform: translateX(120%) scaleX(0.5);
+  }
+}
+```

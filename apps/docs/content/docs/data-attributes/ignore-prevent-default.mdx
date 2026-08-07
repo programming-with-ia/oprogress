@@ -1,0 +1,19 @@
+---
+title: Ignore Prevent Default
+description: Allow the progress bar to run even if default behavior is prevented
+---
+
+By default, if an event handler calls `event.preventDefault()`, the progress bar will **not** start automatically when the link is clicked. 
+
+If you want the progress bar to start regardless of whether the default action is prevented, you can add the `data-ignore-prevent-default="true"` attribute.
+
+## Usage
+
+```tsx
+<Link href="/dashboard" data-ignore-prevent-default="true">
+  <span>Dashboard</span>
+  <span onClick={(e) => e.preventDefault()}>
+    preventDefault (but progress still runs!)
+  </span>
+</Link>
+```

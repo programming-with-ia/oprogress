@@ -1,0 +1,4 @@
+User-Agent: *
+Allow: /
+
+Sitemap: https://oprogress.oimmi.com/sitemap.xml

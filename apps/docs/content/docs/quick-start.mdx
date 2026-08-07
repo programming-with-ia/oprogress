@@ -1,0 +1,51 @@
+---
+title: Quick Start
+description: Get started with OProgress
+---
+
+## Import
+
+### CDN
+
+Import CSS in your `index.html` file.
+
+```html
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/@oprogress/core/dist/index.css" />
+```
+
+Import JavaScript in your `index.html` file using the modern import syntax:
+
+```html
+<script type="module">
+  import { createProgressEngine } from 'https://unpkg.com/@oprogress/core/dist/index.js';
+
+  const progress = createProgressEngine();
+
+  progress.start();
+  progress.done();
+</script>
+```
+
+### Node.js
+
+```js
+import '@oprogress/core/css';
+import { createProgressEngine } from '@oprogress/core';
+```
+
+## Basic Usage
+
+The core provides a **stateful engine** that you control imperatively.
+
+```js
+import { createProgressEngine } from '@oprogress/core';
+
+const progress = createProgressEngine();
+
+progress.start(); // start the bar
+progress.done(); // complete the bar
+```
+
+## React & Next.js
+
+For React and Next.js, use the high-level `@oprogress/react` package, which provides the `<OProgress />` component, the `useProgress()` hook, and a global `progress` instance. See the [React](https://oprogress.oimmi.com/docs/react/quick-start) and [Next.js](https://oprogress.oimmi.com/docs/frameworks/nextjs/quick-start) guides.

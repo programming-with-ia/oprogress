@@ -1,0 +1,211 @@
+---
+title: useRouter (app dir)
+description: Use `useRouter` hook
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+The app directory router doesn't manage routes like the page directory router. So we need a custom router that extends the Next.js router and enables the progress bar.
+
+<Callout type="warn" title="Warning">
+  The `useRouter` hook can only be used in the app directory. It will not work
+  in the pages directory.
+</Callout>
+
+## Import
+
+```tsx
+import { useRouter } from '@oprogress/next/app';
+```
+
+## Usage
+
+See the [Next.js `useRouter` hook documentation for more information](https://nextjs.org/docs/app/api-reference/functions/use-router).
+
+```ts
+const router = useRouter();
+```
+
+## Options
+
+```ts
+useRouter(options?: RouterActionsProgressOptions): AppRouterProgressInstance;
+```
+
+| Name          | Type    | Default   | Description                                          |
+| ------------- | ------- | --------- | ---------------------------------------------------- |
+| showProgress  | boolean | undefined | Force the progress bar to show, even when the URL is the same. |
+| startPosition | number  | undefined | The start position of the progress bar.              |
+| delay         | number  | undefined | The delay before the progress bar starts.            |
+| stopDelay     | number  | undefined | The delay before the progress bar stops.             |
+
+<Callout title="Note">
+  `showProgress` only takes effect when set to `true`. It forces the progress
+  bar to display even during navigation where it would otherwise be skipped
+  (for example when the target URL is the same as the current URL). Omitting it
+  has no effect. To hide the progress bar for a navigation, use the Next.js
+  `useRouter` hook instead.
+</Callout>
+
+<Callout title="Note">
+  By default, if you do not specify any options when calling a router method,
+  the options defined during the initialization of the `useRouter` hook will be
+  applied. However, if you provide specific options in the method call (`push`,
+  `replace`, `back`, `refresh`), these will take precedence and override the
+  default options set in the hook.
+</Callout>
+
+### RouterActionsProgressOptions
+
+```ts
+interface RouterActionsProgressOptions {
+  showProgress?: boolean;
+  startPosition?: number;
+  delay?: number;
+  stopDelay?: number;
+}
+```
+
+### AppRouterProgressInstance
+
+```ts
+export interface AppRouterProgressInstance<
+  ROpts = NavigateOptions,
+  POpts = PrefetchOptions,
+> {
+  push(href: string, options?: CombinedRouterOptions<ROpts>): void;
+  replace(href: string, options?: CombinedRouterOptions<ROpts>): void;
+  prefetch(href: string, options?: POpts): void;
+  back(options?: CombinedRouterOptions<ROpts>): void;
+  refresh(options?: CombinedRouterOptions<ROpts>): void;
+  forward(options?: CombinedRouterOptions<ROpts>): void;
+}
+```
+
+### CombinedRouterOptions
+
+```ts
+export type CombinedRouterOptions<ROpts> = ROpts & RouterActionsProgressOptions;
+```
+
+## Methods
+
+### push
+
+#### Usage
+
+Pushes a new entry onto the history stack.
+
+```ts
+router.push('/about');
+```
+
+#### Types
+
+```ts
+router.push(url: string, options?:CombinedRouterOptions<ROpts>)
+```
+
+### replace
+
+#### Usage
+
+Replaces the current entry on the history stack.
+
+```ts
+router.replace('/?counter=10');
+```
+
+#### Types
+
+```ts
+router.replace(url: string, options?: CombinedRouterOptions<ROpts>)
+```
+
+### back
+
+#### Usage
+
+Goes back in the history stack.
+
+```ts
+router.back();
+```
+
+#### Types
+
+```tsx
+router.back(options?: CombinedRouterOptions<ROpts>)
+```
+
+### forward
+
+#### Usage
+
+Goes forward in the history stack.
+
+```tsx
+router.forward();
+```
+
+#### Types
+
+```tsx
+router.forward(options?: CombinedRouterOptions<ROpts>)
+```
+
+### refresh
+
+#### Usage
+
+Refreshes the current page.
+
+```tsx
+router.refresh();
+```
+
+#### Types
+
+```tsx
+router.refresh(options?: CombinedRouterOptions<ROpts>)
+```
+
+## Options
+
+### Usage
+
+```tsx
+router.push('/about', { showProgress: true });
+router.replace('/?counter=10', { showProgress: true });
+router.back({ startPosition: 0.3 });
+router.forward({ startPosition: 0.3 });
+router.refresh({ startPosition: 0.3 });
+```
+
+### Types
+
+| Name          | Type    | Default   | Description                                              |
+| ------------- | ------- | --------- | -------------------------------------------------------- |
+| showProgress  | boolean | undefined | Force the progress bar to show, even when the URL is the same. |
+| startPosition | number  | undefined | The start position of the progress bar.                  |
+| delay         | number  | undefined | The delay before the progress bar starts.                |
+| stopDelay     | number  | undefined | The delay before the progress bar stops.                 |
+
+<Callout title="Note">
+  `showProgress` only takes effect when set to `true`. It forces the progress
+  bar to display even during navigation where it would otherwise be skipped
+  (for example when the target URL is the same as the current URL). Omitting it
+  has no effect. To hide the progress bar for a navigation, use the Next.js
+  `useRouter` hook directly instead.
+</Callout>
+
+#### RouterActionsProgressOptions
+
+```tsx
+interface RouterActionsProgressOptions {
+  showProgress?: boolean;
+  startPosition?: number;
+  delay?: number;
+  stopDelay?: number;
+}
+```

@@ -1,0 +1,45 @@
+---
+title: Migration from NProgress-V2
+description: Migrate from NProgress-V2 to OProgress
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+To **clarify the library's identity** and enable it to **evolve more freely**, we decided to move away from the name **NProgress-V2** and adopt a new identity: **OProgress**. This rebranding gives us the opportunity to **start fresh on a solid foundation** and provide more integration libraries while fostering a richer ecosystem around the project.
+
+Here are the differences when migrating from the `nprogress-v2` package.
+
+## Package rename
+
+The `nprogress-v2` package is now called `@oprogress/core`. So you can change the import like this:
+
+```diff title=JavaScript
+- import { NProgress } from 'nprogress-v2';
++ import { createProgressEngine } from '@oprogress/core';
+```
+
+## Engine-based API
+
+OProgress replaced the global singleton with a **stateful engine**. Instead of mutating a shared `NProgress` object, you create an engine and call its methods:
+
+```js
+import { createProgressEngine } from '@oprogress/core';
+
+const progress = createProgressEngine();
+
+progress.start();
+progress.done();
+```
+
+## CSS rename
+
+All occurrences of `nprogress` in the CSS have been replaced with `oprogress`. If you use custom CSS, rename all your selectors:
+
+```diff title=CSS
+- .nprogress
++ .oprogress
+```
+
+<Callout type="warn" title="Warning">
+  The `nprogress-v2` package remains available and can still be used in its current version. However, it will no longer receive updates or maintenance. We recommend migrating to `@oprogress/core` to benefit from ongoing improvements and new features.
+</Callout>

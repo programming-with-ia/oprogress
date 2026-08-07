@@ -1,0 +1,77 @@
+---
+title: Installation
+description: Install the OProgress for React utility in your application
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import {
+  SiReact,
+  SiNextdotjs,
+  SiNpm,
+} from 'react-icons/si';
+import { HiDotsHorizontal } from 'react-icons/hi';
+import { FaGithub } from 'react-icons/fa6';
+
+## Installation
+
+### Node.js
+
+To install OProgress, run the following command:
+
+<Tabs groupId="packageManager" items={['npm', 'pnpm', 'yarn', 'bun']} persist>
+  <Tab value="npm">```bash npm install @oprogress/core ```</Tab>
+  <Tab value="pnpm">```bash pnpm add @oprogress/core ```</Tab>
+  <Tab value="yarn">```bash yarn add @oprogress/core ```</Tab>
+  <Tab value="bun">```bash bun add @oprogress/core ```</Tab>
+</Tabs>
+
+### CDN
+
+Use **unpkg**:
+
+- JS: https://unpkg.com/@oprogress/core/dist/index.global.js
+- ESM: https://unpkg.com/@oprogress/core/dist/index.js
+- CSS: https://unpkg.com/@oprogress/core/dist/index.css
+
+Use **jsDelivr**:
+
+- JS: https://cdn.jsdelivr.net/npm/@oprogress/core/dist/index.global.js
+- ESM: https://cdn.jsdelivr.net/npm/@oprogress/core/dist/index.js
+- CSS: https://cdn.jsdelivr.net/npm/@oprogress/core/dist/index.css
+
+### Integrations Libraries
+
+The following frameworks have a dedicated package for using OProgress:
+
+<Cards>
+  <Card title="React" href="/docs/frameworks/react/quick-start" icon={<SiReact />}>
+    Install the OProgress utility for React
+  </Card>
+  <Card title="Next.js" href="/docs/frameworks/nextjs/quick-start" icon={<SiNextdotjs />}>
+    Install OProgress in your Next.js application
+  </Card>
+  <Card title="Soon..." icon={<HiDotsHorizontal />}>
+    More integrations coming soon...
+  </Card>
+</Cards>
+
+## Links
+
+<Cards>
+  <Card
+    external
+    title="NPM"
+    href="https://www.npmjs.com/package/@oprogress/core"
+    icon={<SiNpm />}
+  >
+    Check the package on NPM
+  </Card>
+  <Card
+    external
+    title="GitHub"
+    href="https://github.com/programming-with-ia/oprogress/tree/main/packages/core"
+    icon={<FaGithub />}
+  >
+    Check the repository on GitHub
+  </Card>
+</Cards>

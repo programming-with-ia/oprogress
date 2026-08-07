@@ -1,0 +1,17 @@
+---
+title: Prevent progress
+description: Prevent the progress bar from starting
+---
+
+You can prevent the progress bar from starting by adding the `data-prevent-progress={true}` attribute.
+
+## Usage
+
+```tsx
+<Link href="/dashboard">
+  <span>Dashboard</span>
+  <span onClick={(e) => e.preventDefault()} data-prevent-progress={true}>
+    preventDefault
+  </span>
+</Link>
+```
