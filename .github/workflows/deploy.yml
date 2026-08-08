@@ -1,0 +1,80 @@
+name: Secure Build and Push to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # 1. Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Generate Docker tags
+      - name: Generate Docker Tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.REGISTRY_DOMAIN }}/oprogress.oimmi.com
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-,format=short
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+
+      # 4. Build Docker image (load locally, no push yet)
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+            SKIP_ENV_VALIDATION=${{ secrets.SKIP_ENV_VALIDATION }}
+
+      # 5. Temporarily bypass Cloudflare WAF
+      - name: Temporarily Bypass Cloudflare WAF
+        uses: xiaotianxt/bypass-cloudflare-for-github-action@v2.1.0
+        with:
+          cf_account_id: ${{ secrets.CF_ACCOUNT_ID }}
+          cf_zone_id: ${{ secrets.CF_ZONE_ID }}
+          cf_api_token: ${{ secrets.CF_API_TOKEN }}
+          disable_bot_fight_mode: true
+          bfm_propagation_delay: 0
+
+      # 6. Wait for edge propagation
+      - name: Wait for Cloudflare Edge Propagation
+        run: sleep 45
+
+      # 7. Login to Docker registry
+      - name: Log in to Custom Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.REGISTRY_DOMAIN }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      # 8. Wait for registry to be ready
+      - name: Wait for registry to be ready
+        run: sleep 10
+
+      # 9. Push Docker images safely in parallel
+      - name: Push Docker Image
+        run: |
+          echo "${{ steps.meta.outputs.tags }}" | while IFS= read -r tag; do
+            echo "Pushing $tag"
+            docker push "$tag"
+          done

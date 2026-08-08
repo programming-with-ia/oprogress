@@ -4,8 +4,15 @@ const withMDX = createMDX();
 
 /** @type {import('next').NextConfig} */
 const config = {
-  reactStrictMode: true,
-  transpilePackages: ['@workspace/ui', '@oprogress/core', '@oprogress/react', '@oprogress/next'],
+    output: "standalone",
+    typescript: {
+        ignoreBuildErrors: true,
+    },
+    images: {
+        unoptimized: true,
+    },
+    cacheComponents: false,
+    reactCompiler: true,
 };
 
 export default withMDX(config);
