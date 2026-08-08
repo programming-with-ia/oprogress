@@ -1,6 +1,6 @@
 # OProgress
 
-**A modern, framework-agnostic progress bar for Next.js and React, inspired by [oprogress](https://github.com/programming-with-ia/oprogress).**
+**A modern, framework-agnostic progress bar for Next.js and React, inspired by [bprogress](https://github.com/imskyleen/bprogress).**
 
 OProgress is a lightweight progress bar that visually indicates loading states in web applications — commonly used to show a **smooth, animated progress bar** during **page transitions, data loading, or asynchronous operations**.
 
@@ -49,8 +49,8 @@ See the [official documentation](https://oprogress.oimmi.com/docs) for the full 
 
 OProgress is inspired by the excellent work done in:
 
-- **[oprogress](https://github.com/programming-with-ia/oprogress)** — the direct inspiration for this package.
-- **[NProgress](https://github.com/rstacruz/nprogress)** — the original progress bar this project builds upon.
+- **[bprogress](https://github.com/imskyleen/bprogress)**
+- **[NProgress](https://github.com/rstacruz/nprogress)**
 
 ## Issues
 

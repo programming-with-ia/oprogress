@@ -43,11 +43,11 @@ export const Hero = () => {
           <strong>NProgress</strong>, inspired by{' '}
           <a
             className="underline"
-            href="https://github.com/programming-with-ia/oprogress"
+            href="https://github.com/imskyleen/bprogress"
             target="_blank"
             rel="noreferrer"
           >
-            oprogress
+            bprogress
           </a>
           , offering a more modern design and enhanced features for a smoother
           experience.

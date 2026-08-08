@@ -6,8 +6,17 @@ WORKDIR /app
 
 RUN corepack enable
 
-# Copy workspace config
+# Copy workspace config + all importer package.jsons so pnpm creates
+# node_modules for every workspace member (apps/docs needs its own
+# node_modules + .bin scripts for fumadocs-mdx)
 COPY pnpm-lock.yaml package.json pnpm-workspace.yaml* ./
+COPY apps/docs/package.json ./apps/docs/
+COPY packages/core/package.json ./packages/core/
+COPY packages/react/package.json ./packages/react/
+COPY packages/next/package.json ./packages/next/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/eslint-config/package.json ./packages/eslint-config/
+COPY packages/typescript-config/package.json ./packages/typescript-config/
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store/v3 \
   pnpm fetch

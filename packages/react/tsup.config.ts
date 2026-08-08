@@ -1,5 +1,5 @@
 import { defineConfig } from "tsup";
-import { copyFileSync } from "fs";
+import { copyFileSync, mkdirSync } from "fs";
 
 export default defineConfig({
   entry: ["src/index.tsx"],
@@ -13,6 +13,7 @@ export default defineConfig({
       name: "copy-css",
       setup(build) {
         build.onEnd(() => {
+          mkdirSync("./dist", { recursive: true });
           copyFileSync("../core/src/index.css", "./dist/index.css");
         });
       },
