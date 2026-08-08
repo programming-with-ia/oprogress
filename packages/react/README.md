@@ -1,6 +1,6 @@
 # OProgress for React
 
-**A progress bar for React, inspired by [oprogress](https://github.com/programming-with-ia/oprogress).**
+**A progress bar for React, inspired by [bprogress](https://github.com/imskyleen/bprogress).**
 
 `@oprogress/react` provides the `OProgress` component and hooks on top of the framework-agnostic [`@oprogress/core`](https://www.npmjs.com/package/@oprogress/core) engine.
 
@@ -70,7 +70,7 @@ Go to the [official documentation](https://oprogress.oimmi.com/docs) to learn mo
 
 OProgress is inspired by the excellent work done in:
 
-- **[oprogress](https://github.com/programming-with-ia/oprogress)**
+- **[bprogress](https://github.com/imskyleen/bprogress)**
 - **[NProgress](https://github.com/rstacruz/nprogress)**
 
 ## Issues

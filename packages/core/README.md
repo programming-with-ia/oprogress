@@ -1,6 +1,6 @@
 # OProgress Core
 
-**The framework-agnostic progress engine behind OProgress, inspired by [oprogress](https://github.com/programming-with-ia/oprogress).**
+**The framework-agnostic progress engine behind OProgress, inspired by [bprogress](https://github.com/imskyleen/bprogress).**
 
 The `@oprogress/core` package is the framework-agnostic engine that powers OProgress. It provides a **stateful singleton-style progress engine** built on top of `emittor`, along with a set of typed utilities.
 
@@ -119,7 +119,7 @@ Go to the [documentation](https://oprogress.oimmi.com/docs) to learn more about 
 
 OProgress is inspired by the excellent work done in:
 
-- **[oprogress](https://github.com/programming-with-ia/oprogress)**
+- **[bprogress](https://github.com/imskyleen/bprogress)**
 - **[NProgress](https://github.com/rstacruz/nprogress)**
 
 ## Issues

@@ -1,6 +1,6 @@
 # OProgress for Next.js
 
-**A progress bar for Next.js, inspired by [oprogress](https://github.com/programming-with-ia/oprogress).**
+**A progress bar for Next.js, inspired by [bprogress](https://github.com/imskyleen/bprogress).**
 
 OProgress integration on Next.js, compatible with the **/app** and **/pages** directories. This package re-exports everything from `@oprogress/react` and `@oprogress/core`, and additionally provides the `useRouter` hook for the **app directory** router.
 
@@ -95,7 +95,7 @@ Go to the [official documentation](https://oprogress.oimmi.com/docs) to learn mo
 
 OProgress is inspired by the excellent work done in:
 
-- **[oprogress](https://github.com/programming-with-ia/oprogress)**
+- **[bprogress](https://github.com/imskyleen/bprogress)**
 - **[NProgress](https://github.com/rstacruz/nprogress)**
 
 ## Issues
