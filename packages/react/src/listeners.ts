@@ -2,93 +2,247 @@ import { observeUrl as observeUrlInternal } from 'window-change-events/url';
 import type { UrlChangeEvent } from 'window-change-events/url';
 import type { ProgressBarInstance } from './createProgressBar';
 
-let isListenerAttached = false;
-let globalProgressInstance: ProgressBarInstance | null = null;
-let currentUrlObserverOff: (() => void) | null = null;
-let lastObservedUrl: string | null = null;
-
 export interface ListenerOptions {
   shallowRouting?: boolean;
+  dragThreshold?: number;
 }
 
-let globalOptions: ListenerOptions = {};
+interface Registration {
+  instance: ProgressBarInstance;
+  options: ListenerOptions;
+}
+
+const registrations = new Map<symbol, Registration>();
+
+let activeRegistration: Registration | null = null;
+let isListenerAttached = false;
+let currentUrlObserverOff: (() => void) | null = null;
+let lastObservedUrl: string | null = null;
+let completionTimer: ReturnType<typeof setTimeout> | null = null;
+
+let pointerStart: {
+  id: number;
+  x: number;
+  y: number;
+} | null = null;
+
+let wasDragged = false;
+
+function cancelPendingCompletion() {
+  if (completionTimer !== null) {
+    clearTimeout(completionTimer);
+    completionTimer = null;
+  }
+}
+
+function resetPointerState() {
+  pointerStart = null;
+  wasDragged = false;
+}
+
+function selectActiveRegistration() {
+  let nextRegistration: Registration | null = null;
+
+  // The most recently added registration takes precedence.
+  for (const registration of registrations.values()) {
+    nextRegistration = registration;
+  }
+
+  if (nextRegistration === activeRegistration) return;
+
+  cancelPendingCompletion();
+  resetPointerState();
+
+  activeRegistration = nextRegistration;
+  lastObservedUrl = nextRegistration ? window.location.href : null;
+}
+
+function attachListeners() {
+  if (isListenerAttached) return;
+
+  document.addEventListener('pointerdown', handlePointerDown, true);
+  document.addEventListener('pointermove', handlePointerMove, true);
+  document.addEventListener('pointerup', handlePointerUp, true);
+  document.addEventListener('pointercancel', handlePointerCancel, true);
+  document.addEventListener('click', handleGlobalClick, true);
+  window.addEventListener('urlchange', handleUrlChange);
+
+  currentUrlObserverOff = observeUrlInternal();
+  isListenerAttached = true;
+}
+
+function detachListeners() {
+  cancelPendingCompletion();
+
+  if (isListenerAttached) {
+    document.removeEventListener('pointerdown', handlePointerDown, true);
+    document.removeEventListener('pointermove', handlePointerMove, true);
+    document.removeEventListener('pointerup', handlePointerUp, true);
+    document.removeEventListener('pointercancel', handlePointerCancel, true);
+    document.removeEventListener('click', handleGlobalClick, true);
+    window.removeEventListener('urlchange', handleUrlChange);
+
+    isListenerAttached = false;
+  }
+
+  if (currentUrlObserverOff) {
+    const off = currentUrlObserverOff;
+    currentUrlObserverOff = null;
+    off();
+  }
+
+  resetPointerState();
+  lastObservedUrl = null;
+}
 
 export function setupGlobalListeners(
   progressInstance: ProgressBarInstance,
   options: ListenerOptions = {}
-) {
+): () => void {
   if (typeof window === 'undefined') return () => {};
 
-  globalProgressInstance = progressInstance;
-  globalOptions = options;
+  const registrationId = Symbol('oprogress-listener');
 
-  if (!isListenerAttached) {
-    document.addEventListener('click', handleGlobalClick, { capture: true });
-    isListenerAttached = true;
-  }
+  registrations.set(registrationId, {
+    instance: progressInstance,
+    options: { ...options },
+  });
 
-  if (currentUrlObserverOff) {
-    currentUrlObserverOff();
-  }
-
-  lastObservedUrl = window.location.href;
-  currentUrlObserverOff = observeUrlInternal();
-  window.addEventListener('urlchange', handleUrlChange);
+  selectActiveRegistration();
+  attachListeners();
 
   return () => {
-    window.removeEventListener('urlchange', handleUrlChange);
-    if (currentUrlObserverOff) {
-      currentUrlObserverOff();
-      currentUrlObserverOff = null;
+    // Cleanup is idempotent and only removes its own registration.
+    if (!registrations.delete(registrationId)) return;
+
+    selectActiveRegistration();
+
+    if (registrations.size === 0) {
+      detachListeners();
     }
   };
 }
 
 export function teardownGlobalListeners() {
-  if (!isListenerAttached) return;
-  document.removeEventListener('click', handleGlobalClick, { capture: true });
-  isListenerAttached = false;
-  globalProgressInstance = null;
-  if (currentUrlObserverOff) {
-    currentUrlObserverOff();
-    currentUrlObserverOff = null;
-  }
+  if (typeof window === 'undefined') return;
+
+  registrations.clear();
+  activeRegistration = null;
+  detachListeners();
 }
 
-function handleGlobalClick(event: MouseEvent) {
-  if (!globalProgressInstance) return;
-  const target = event.target as HTMLElement;
-  const ignorePreventDefault = target.closest('[data-ignore-prevent-default="true"]');
+function getDragThreshold() {
+  const threshold = activeRegistration?.options.dragThreshold;
 
-  if (event.defaultPrevented && !ignorePreventDefault) return;
+  return typeof threshold === 'number' &&
+    Number.isFinite(threshold) &&
+    threshold >= 0
+    ? threshold
+    : 10;
+}
 
-  const anchor = target.closest('a');
-  const forceElement = target.closest('[data-force-progress="true"]');
+function handlePointerDown(event: PointerEvent) {
+  if (!event.isPrimary || event.button !== 0) return;
 
-  if (forceElement) {
-    globalProgressInstance.start();
-    return;
-  }
+  pointerStart = {
+    id: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+  };
 
-  if (!anchor) return;
+  wasDragged = false;
+}
 
-  const href = anchor.getAttribute('href');
-  if (!href) return;
-  
+function handlePointerMove(event: PointerEvent) {
   if (
-    anchor.getAttribute('target') === '_blank' ||
-    anchor.hasAttribute('download') ||
-    href.startsWith('tel:') ||
-    href.startsWith('mailto:') ||
-    href.startsWith('blob:') ||
-    href.startsWith('javascript:')
+    !pointerStart ||
+    event.pointerId !== pointerStart.id ||
+    wasDragged
   ) {
     return;
   }
 
-  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+  const distance = Math.hypot(
+    event.clientX - pointerStart.x,
+    event.clientY - pointerStart.y
+  );
+
+  if (distance > getDragThreshold()) {
+    wasDragged = true;
+  }
+}
+
+function handlePointerUp(event: PointerEvent) {
+  handlePointerMove(event);
+
+  if (event.pointerId === pointerStart?.id) {
+    pointerStart = null;
+  }
+}
+
+function handlePointerCancel(event: PointerEvent) {
+  if (event.pointerId !== pointerStart?.id) return;
+
+  pointerStart = null;
+  wasDragged = true;
+}
+
+function startProgress(registration: Registration) {
+  cancelPendingCompletion();
+  registration.instance.start();
+}
+
+function handleGlobalClick(event: MouseEvent) {
+  const registration = activeRegistration;
+  if (!registration) return;
+
+  // Preserve keyboard and programmatic activation.
+  if (event.detail > 0 && wasDragged) return;
+
+  if (!(event.target instanceof Element)) return;
+  const target = event.target;
+
+  const ignorePreventDefault = target.closest(
+    '[data-ignore-prevent-default="true"]'
+  );
+
+  // This capture-phase check only sees cancellations made earlier.
+  if (event.defaultPrevented && !ignorePreventDefault) return;
+
+  const forceElement = target.closest('[data-force-progress="true"]');
+
+  // Preserve the explicit override of normal link filtering.
+  if (forceElement) {
+    startProgress(registration);
     return;
   }
+
+  if (
+    event.button !== 0 ||
+    event.ctrlKey ||
+    event.metaKey ||
+    event.shiftKey ||
+    event.altKey
+  ) {
+    return;
+  }
+
+  const anchor = target.closest('a');
+
+  if (!(anchor instanceof HTMLAnchorElement)) return;
+
+  const href = anchor.getAttribute('href');
+
+  if (!href?.trim() || anchor.hasAttribute('download')) return;
+
+  // Include <base target="..."> when the anchor has no target.
+  const linkTarget = (
+    anchor.getAttribute('target') ??
+    document.querySelector('base[target]')?.getAttribute('target') ??
+    ''
+  ).toLowerCase();
+
+  if (linkTarget && linkTarget !== '_self') return;
 
   if (
     anchor.getAttribute('data-prevent-progress') === 'true' ||
@@ -97,44 +251,73 @@ function handleGlobalClick(event: MouseEvent) {
     return;
   }
 
-  const { shallowRouting = false } = globalOptions;
+  let targetUrl: URL;
 
-  const targetUrl = new URL(anchor.href, window.location.href);
-  const currentUrl = new URL(window.location.href);
-
-  if (shallowRouting && targetUrl.pathname === currentUrl.pathname && targetUrl.search !== currentUrl.search) {
-    if (!forceElement) return;
-  }
-
-  if (targetUrl.pathname === currentUrl.pathname && targetUrl.search === currentUrl.search) {
+  try {
+    targetUrl = new URL(anchor.href);
+  } catch {
     return;
   }
 
-  globalProgressInstance.start();
+  const currentUrl = new URL(window.location.href);
+
+  if (
+    (targetUrl.protocol !== 'http:' && targetUrl.protocol !== 'https:') ||
+    targetUrl.origin !== currentUrl.origin
+  ) {
+    return;
+  }
+
+  const samePath = targetUrl.pathname === currentUrl.pathname;
+  const sameSearch = targetUrl.search === currentUrl.search;
+
+  // Ignore same-page and hash-only navigation.
+  if (samePath && sameSearch) return;
+
+  // Ignore query-only navigation when shallow routing is enabled.
+  if (registration.options.shallowRouting && samePath) return;
+
+  startProgress(registration);
 }
 
 function handleUrlChange(event: UrlChangeEvent) {
-  if (!globalProgressInstance) return;
+  const registration = activeRegistration;
+  if (!registration) return;
 
-  const newUrl = new URL(event.detail.url, window.location.href);
-  if (isSamePathAndSearch(newUrl)) {
-    lastObservedUrl = newUrl.href;
+  let newUrl: URL;
+
+  try {
+    newUrl = new URL(event.detail.url, window.location.href);
+  } catch {
     return;
   }
-  lastObservedUrl = event.detail.url;
 
-  // Delay the completion slightly to avoid "useInsertionEffect must not schedule updates" error in React 18+
-  // This happens because Next.js might call pushState during a React render phase.
-  setTimeout(() => {
-    globalProgressInstance!.done();
+  const previousUrl = lastObservedUrl
+    ? new URL(lastObservedUrl)
+    : null;
+
+  lastObservedUrl = newUrl.href;
+
+  if (
+    previousUrl &&
+    newUrl.origin === previousUrl.origin &&
+    newUrl.pathname === previousUrl.pathname &&
+    newUrl.search === previousUrl.search
+  ) {
+    return;
+  }
+
+  cancelPendingCompletion();
+
+  // Avoid scheduling React updates during a render phase.
+  completionTimer = setTimeout(() => {
+    completionTimer = null;
+
+    if (activeRegistration === registration) {
+      registration.instance.done();
+    }
   }, 0);
 }
 
-function isSamePathAndSearch(targetUrl: URL) {
-  if (!lastObservedUrl) return false;
-  const currentUrl = new URL(lastObservedUrl, window.location.href);
-  return targetUrl.pathname === currentUrl.pathname && targetUrl.search === currentUrl.search;
-}
-
-// Re-export observeUrl for manual usage
+// Re-export observeUrl for manual usage.
 export const observeUrl = observeUrlInternal;
